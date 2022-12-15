@@ -13,68 +13,81 @@ $TempStorage = get-appxpackage | select-object name | sort-object name
 #Grabs all of the Windows Store packages on a system, by the Name value, and sorts them alphabetically. 
 #The Name value is a string value associated with the custom object which stores the values of the AppXPackages
 #By storing them in an object like this it makes it easier to handle the data later on in the program.
-$progArr = @()
+$progArr = New-Object -typename 'System.Collections.ArrayList'
 #This is an array to store the strings of Name value data from the AppXPackage collection above.
 foreach($string in $TempStorage) {$progarr += $string.Name}
 #Stores the AppXPackage Name values into the $progarr array object.
-$ThirdPartyArr = @()
+$ThirdPartyArr = New-Object -typename 'System.Collections.ArrayList'
 #Array to store all the AppXPackages who's Name indicates that they are developed outside of and/or with no association with Microsoft.
 #Examples include AMD GPU Drivers, Realtek audio drivers, and Windows Store applications such as EarTrumpet. 
 #Technically this is a way to install/uninstall applications from the windows store, but be cautious about it. Lots of malware and scams on there that are easy to install while looking for a trusted program, and they're harder to spot over terminal.
-$MicrosoftArr = @()
+$MicrosoftArr = New-Object -typename 'System.Collections.ArrayList'
 #Array to store all the AppXPackages who's Name begins with "Microsoft."
 #These are packages/programs published and developed by Microsoft that are not integral core components to windows and can thus be deleted with caution but seldom catastrophy.
-$WindowsArr = @()
+$WindowsArr = New-Object -typename 'System.Collections.ArrayList'
 #Array to store all the AppXPackages who's Name begins with "Windows."
 #These are packages/programs published and developed by Microsoft that are integral core components to windows. Extreme caution should be taken with editing or deleting these, as they can cause windows to corrupt itself.
 #Most of these packages/programs are not a part of the Windows Kernal, but they do cover some very integral features and are not always named to display their purpose.
-$MicrosoftWindowsArr = @()
+$MicrosoftWindowsArr = New-Object -typename 'System.Collections.ArrayList'
 #Array to store all the AppXPackages who's Name begins with "Microsoft.Windows."
 #These are packages/programs published and developed by Microsoft that are integral core components to windows. Extreme caution should be taken with editing or deleting these, as they can cause windows to corrupt itself.
 #While almost none of these packages/programs are a part of the Windows Kernal, they do cover very core user features such as the Narrator, CapturePicker (Snip Tool?), Parental Controls, or Calling the Shell. Extreme Caution needed.
 #$Int = 0 #DEBUG TOOL
-foreach($string in $progarr)
+
+Function sortPackage
 {
-    #"Index number: $int  $string ";
-    if($string.length -gt 10) 
+    $TempStorage = get-appxpackage | select-object name | sort-object name 
+
+    $thirdpartyArr.Clear()
+    $microsoftarr.Clear()
+    $windowsArr.Clear()
+    $microsoftWindowsArr.Clear()
+
+    foreach($string in $progarr)
     {
-        if($string.substring(0,10) -eq "Microsoft.") 
+        #"Index number: $int  $string ";
+        if($string.length -gt 10) 
         {
-            if($string.length -gt 18) 
+            if($string.substring(0,10) -eq "Microsoft.") 
             {
-               if($string.substring(0,18) -eq "Microsoft.Windows.")
-                {
-                    $microsoftWindowsArr += $string; #write-output "Microsoft.windows Added"
+                if($string.length -gt 18) 
+                {   
+                if($string.substring(0,18) -eq "Microsoft.Windows.")
+                    {
+                        $microsoftWindowsArr.add($string); #write-output "Microsoft.windows Added"
+                    }
+                    else
+                    {
+                        $microsoftarr.add($string); #Write-output "Microsoft Added"
+                    }
                 }
-                else
+                else 
                 {
-                    $microsoftarr += $string; #Write-output "Microsoft Added"
+                    $microsoftarr.add($string); #Write-output "Microsoft Added"
                 }
+            }
+            elseif($string.substring(0,8) -eq "Windows.")
+            {
+                $windowsArr.add($string); #write-output "Windows Added"
+            }
+            elseif($string.substring(0,17) -eq "MicrosoftWindows.")
+            {
+                $microsoftwindowsarr.add($string); #write-output "MicrosoftWindows Added"
             }
             else 
             {
-                $microsoftarr += $string; #Write-output "Microsoft Added"
-            }
-        }
-        elseif($string.substring(0,8) -eq "Windows.")
-        {
-            $windowsArr += $string; #write-output "Windows Added"
-        }
-        elseif($string.substring(0,17) -eq "MicrosoftWindows.")
-        {
-            $microsoftwindowsarr += $string; #write-output "MicrosoftWindows Added"
+                $thirdpartyArr.add($string); #write-output "Third Party Added"
+            }; 
         }
         else 
         {
-            $thirdpartyArr += $string; #write-output "Third Party Added"
+            $thirdpartyArr.add($string); #write-output "Third Party Added"
         }; 
+        $int++
     }
-    else 
-    {
-        $thirdpartyArr += $string; #write-output "Third Party Added"
-    }; 
-    $int++
 }
+
+
 #ForEach Loop that sorts all the Names into their associated category 
 #Once the Name values are sorted, the user can be given a new list of these AppXPackages grouped together by their likely source and how cautious they should be when fiddling with it.
 
@@ -97,16 +110,24 @@ $button1.autosize = $true
 $button1_Click = 
 {
     $label1.text = "Compiling your list."
-    $label1.text = "Compilation complete."
+
+    $checkedlistbox.Items.Clear()
+    $CheckedListBox.Items.Add("Select All") > $null
+    $checkedlistbox2.Items.Clear()
+    $CheckedListBox2.Items.Add("Select All") > $null
+    $checkedlistbox3.Items.Clear()
+    $CheckedListBox3.Items.Add("Select All") > $null
+    $checkedlistbox4.Items.Clear()
+    $CheckedListBox4.Items.Add("Select All") > $null
+
+    sortPackage
 
     $checkedListBox.Items.addrange($thirdpartyArr)
-    $checkedlistbox.Update()
     $checkedlistbox2.Items.addrange($microsoftarr)
-    $checkedlistbox2.update()
     $checkedlistbox3.Items.addrange($windowsArr)
-    $checkedlistbox3.update()
     $checkedlistbox4.Items.AddRange($MicrosoftWindowsArr)
-    $checkedlistbox4.update()
+
+    $label1.text = "Compilation complete."
 }
 $button1.add_click($button1_Click)
 $form.Controls.add($button1)
