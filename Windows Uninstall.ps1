@@ -1,13 +1,21 @@
+Add-type -assembly System.Windows.Forms
+
+$UserArrold = @("microsoft.mixedreality.portal","microsoft.windows.narratorquickstart","microsoft.windows.cloudexperiencehost","microsoft.windows.peopleexperiencehost","microsoft.windowsalarms","microsoft.xbox.tcui","microsoft.xboxapp","microsoft.xboxgamecallableUI","microsoft.xboxgameoverlay","microsoft.xboxgamingoverlay","microsoft.xboxidentityprovider","microsoft.xboxspeechtotextoverlay","microsoft.yourphone","microsoft.zunevideo","microsoft.add.brokerplugin","microsoft.microsoftedge";)
+#Array for the user to fill with every AppXPackage they want to try and remove.
+#The array is pre-populated with some common annoyances I personally just nuke off of windows installations. 
+$UserArr = New-Object -typename 'System.Collections.ArrayList'
+
+
 import-module appx -UseWindowsPowerShell
 #Ensures that the terminal has appxpackage access and will respond consistently. Powershell 7 doesn't have native appxsupport, for some reason, but powershell 2/3/5 and command prompt do.
 
-$temp = get-appxpackage | select-object name | sort-object name 
+$TempStorage = get-appxpackage | select-object name | sort-object name 
 #Grabs all of the Windows Store packages on a system, by the Name value, and sorts them alphabetically. 
 #The Name value is a string value associated with the custom object which stores the values of the AppXPackages
 #By storing them in an object like this it makes it easier to handle the data later on in the program.
 $progArr = @()
 #This is an array to store the strings of Name value data from the AppXPackage collection above.
-foreach($string in $temp) {$progarr += $string.Name}
+foreach($string in $TempStorage) {$progarr += $string.Name}
 #Stores the AppXPackage Name values into the $progarr array object.
 $ThirdPartyArr = @()
 #Array to store all the AppXPackages who's Name indicates that they are developed outside of and/or with no association with Microsoft.
@@ -70,14 +78,274 @@ foreach($string in $progarr)
 #ForEach Loop that sorts all the Names into their associated category 
 #Once the Name values are sorted, the user can be given a new list of these AppXPackages grouped together by their likely source and how cautious they should be when fiddling with it.
 
-$UserArr = @("microsoft.mixedreality.portal","microsoft.windows.narratorquickstart","microsoft.windows.cloudexperiencehost","microsoft.windows.peopleexperiencehost","microsoft.windowsalarms","microsoft.xbox.tcui","microsoft.xboxapp","microsoft.xboxgamecallableUI","microsoft.xboxgameoverlay","microsoft.xboxgamingoverlay","microsoft.xboxidentityprovider","microsoft.xboxspeechtotextoverlay","microsoft.yourphone","microsoft.zunevideo","microsoft.add.brokerplugin","microsoft.microsoftedge";)
-#Array for the user to fill with every AppXPackage they want to try and remove.
-#The array is pre-populated with some common annoyances I personally just nuke off of windows installations. 
+$font = New-Object System.Drawing.Font("Lucida Console",11,[System.Drawing.FontStyle]::Regular)
+
+$form = new-object System.Windows.Forms.Form
+$form.text = "Windows Bloatware Removal Tool V 0.8"
+$form.width = 1700
+$form.height = 800
+$form.autosize = $true
+$form.startposition = "CenterScreen"
+
+$button1 = new-object System.Windows.Forms.Button
+$button1.location = new-object system.drawing.size(10, 10)
+$button1.size = new-object system.drawing.size(180,40)
+$button1.text = "Check Windows AppXPackages"
+$button1.font = New-Object System.Drawing.Font("Lucida Console", 16, [System.Drawing.FontStyle]::Regular)
+$button1.autosize = $true
+
+$button1_Click = 
+{
+    $label1.text = "Compiling your list."
+    $label1.text = "Compilation complete."
+
+    $checkedListBox.Items.addrange($thirdpartyArr)
+    $checkedlistbox.Update()
+    $checkedlistbox2.Items.addrange($microsoftarr)
+    $checkedlistbox2.update()
+    $checkedlistbox3.Items.addrange($windowsArr)
+    $checkedlistbox3.update()
+    $checkedlistbox4.Items.AddRange($MicrosoftWindowsArr)
+    $checkedlistbox4.update()
+}
+$button1.add_click($button1_Click)
+$form.Controls.add($button1)
+
+$label1 = new-object System.Windows.Forms.Label
+$label1.Location = New-Object System.Drawing.Point(10,60)
+$label1.text = "List is empty"
+$label1.autosize = $true
+$label1.font = $font
+$form.controls.add($label1)
+
+$label_X = 10
+$label_Y = 110
+
+$label2 = new-object System.Windows.Forms.Label
+$label2.Location = new-object System.drawing.point($label_X, $label_Y)
+$label2.text = "Third Party Packages"
+$label2.autosize = $true
+$label2.font = $font
+$form.Controls.add($label2)
+
+$label3 = new-object System.Windows.Forms.Label
+$label3.Location = new-object System.drawing.point((410 + $label_X), $label_Y)
+$label3.text = "Microsoft Packages"
+$label3.autosize = $true
+$label3.font = $font
+$form.Controls.add($label3)
+
+$label4 = new-object System.Windows.Forms.Label
+$label4.Location = new-object System.drawing.point((820 + $label_X), $label_Y)
+$label4.text = "Windows Packages"
+$label4.autosize = $true
+$label4.font = $font
+$form.Controls.add($label4)
+
+$label5 = new-object System.Windows.Forms.Label
+$label5.Location = new-object System.drawing.point((1230 + $label_X), $label_Y)
+$label5.text = "Microsoft Windows Packages"
+$label5.autosize = $true
+$label5.font = $font
+$form.Controls.add($label5)
+
+$check_click = 
+{
+If($this.selecteditem -eq 'Select All')
+    {
+        If ($This.GetItemCheckState(0) -ne 'Checked')
+        {
+            For($i=1;$i -lt $CheckedListBox.Items.Count; $i++)
+            {
+                $CheckedListBox.SetItemChecked($i,$true)
+            }            
+        }
+        Else
+        {
+            For($i=1;$i -lt $CheckedListBox.Items.Count; $i++)
+            {
+                $CheckedListBox.SetItemChecked($i,$False)
+            } 
+        }
+    }
+}
+$checkedListBox = new-object System.Windows.Forms.CheckedListBox  
+$checkedlistbox.location = new-object system.drawing.size(10,140)
+$checkedlistbox.size = new-object system.drawing.size(400, 250) 
+$checkedlistbox.font = $font
+$checkedlistbox.checkonclick = $true #So we only have to click once to check a box, rather than click to focus and then click to check
+$CheckedListBox.Items.Add("Select All") > $null
+$checkedlistbox.clearselected()
+
+$CheckedListBox.Add_click($check_click)
+$form.Controls.add($checkedlistbox)
+
+$CheckListBox_X = $checkedlistbox.Location.X 
+$CheckListBox_Y = $checkedlistbox.Location.Y
+
+$check_click2 = 
+{
+If($this.selecteditem -eq 'Select All')
+    {
+        If ($This.GetItemCheckState(0) -ne 'Checked')
+        {
+            For($i=1;$i -lt $CheckedListBox2.Items.Count; $i++)
+            {
+                $CheckedListBox2.SetItemChecked($i,$true)
+            }            
+        }
+        Else
+        {
+            For($i=1;$i -lt $CheckedListBox2.Items.Count; $i++)
+            {
+                $CheckedListBox2.SetItemChecked($i,$False)
+            } 
+        }
+    }
+}
+$checkedListBox2 = new-object System.Windows.Forms.CheckedListBox  
+$checkedlistbox2.location = new-object system.drawing.size((410 + $checklistbox_x), $checklistbox_y)
+$checkedlistbox2.size = new-object system.drawing.size(400, 250) 
+$checkedlistbox2.font = $font
+$checkedlistbox2.checkonclick = $true #So we only have to click once to check a box, rather than click to focus and then click to check
+$CheckedListBox2.Items.Add("Select All") > $null
+$checkedlistbox2.clearselected()
+
+$CheckedListBox2.Add_click($check_click2)
+$form.Controls.add($checkedlistbox2)
+
+$check_click3 = 
+{
+If($this.selecteditem -eq 'Select All')
+    {
+        If ($This.GetItemCheckState(0) -ne 'Checked')
+        {
+            For($i=1;$i -lt $CheckedListBox3.Items.Count; $i++)
+            {
+                $CheckedListBox3.SetItemChecked($i,$true)
+            }            
+        }
+        Else
+        {
+            For($i=1;$i -lt $CheckedListBox3.Items.Count; $i++)
+            {
+                $CheckedListBox3.SetItemChecked($i,$False)
+            } 
+        }
+    }
+}
+$checkedListBox3 = new-object System.Windows.Forms.CheckedListBox  
+$checkedlistbox3.location = new-object system.drawing.size((820 + $checklistbox_x), $checklistbox_y)
+$checkedlistbox3.size = new-object system.drawing.size(400, 250) 
+$checkedlistbox3.font = $font
+$checkedlistbox3.checkonclick = $true #So we only have to click once to check a box, rather than click to focus and then click to check
+$CheckedListBox3.Items.Add("Select All") > $null
+$checkedlistbox3.clearselected()
+
+$CheckedListBox3.Add_click($check_click3)
+$form.Controls.add($checkedlistbox3)
+
+$check_click4 = 
+{
+If($this.selecteditem -eq 'Select All')
+    {
+        If ($This.GetItemCheckState(0) -ne 'Checked')
+        {
+            For($i=1;$i -lt $CheckedListBox4.Items.Count; $i++)
+            {
+                $CheckedListBox4.SetItemChecked($i,$true)
+            }            
+        }
+        Else
+        {
+            For($i=1;$i -lt $CheckedListBox4.Items.Count; $i++)
+            {
+                $CheckedListBox4.SetItemChecked($i,$False)
+            } 
+        }
+    }
+}
+$checkedListBox4 = new-object System.Windows.Forms.CheckedListBox  
+$checkedlistbox4.location = new-object system.drawing.size((1230 + $checklistbox_x),$checklistbox_y)
+$checkedlistbox4.size = new-object system.drawing.size(450, 250) 
+$checkedlistbox4.font = $font
+$checkedlistbox4.checkonclick = $true #So we only have to click once to check a box, rather than click to focus and then click to check
+$CheckedListBox4.Items.Add("Select All") > $null
+$checkedlistbox4.clearselected()
+
+$CheckedListBox4.Add_click($check_click4)
+$form.Controls.add($checkedlistbox4)
+
+$button2 = new-object System.Windows.Forms.Button
+$button2.location = new-object System.drawing.size(10, 400)
+$button2.text = "Update Items inside User List"
+$button2.autosize = $true
+$button2.font = New-Object System.Drawing.Font("Lucida Console", 16, [System.Drawing.FontStyle]::Regular)
 
 
-foreach($string in $UserArr) {write-host "get-appxpackage *$string* | remove-appxpackage"}
-#A foreach loop to remove an array of AppXPackages. The user can fill the UserArr with every AppXPackage they want to be rid of, uncomment this line, and run to clean up their system.
+$button2_click = 
+{
+    $UserArr.clear()    
+
+    foreach($arg in $checkedListBox.CheckedItems)
+    {
+        $userarr.add($arg)
+    }
+    foreach($arg2 in $checkedListBox2.CheckedItems)
+    {
+        $userarr.add($arg2)
+    }
+    foreach($arg3 in $checkedListBox3.CheckedItems)
+    {
+        $userarr.add($arg3)
+    }
+    foreach($arg4 in $checkedListBox4.CheckedItems)
+    {
+        $userarr.add($arg4)
+    }
+
+    $userarr.remove("Select All")
+
+    #write-host $UserArr
+}
+
+$button2.add_click($button2_click)
+$form.Controls.add($button2)
+
+$checkbox = new-object System.Windows.Forms.CheckBox
+$checkbox.location = new-object system.drawing.size(455, 450)
+$checkbox.size = new-object system.drawing.size(150, 50)
+$checkbox.text = "Ready to Delete selected packages?"
+$checkbox.tabindex = 4
+$checkbox.font = $font
+$checkbox.autosize = $true
+
+$form.Controls.add($checkbox)
+
+$button3 = new-object system.windows.forms.button
+$button3.text = "DELETE"
+$button3.location = new-object system.drawing.size(800, 550)
+$button3.size = new-object system.drawing.size(150,150)
+$button3.AutoSize = $true
+$button3.font = New-Object System.Drawing.Font("Lucida Console", 16, [System.Drawing.FontStyle]::Bold)
+
+$button3_click = 
+{
+    if($checkbox.checked -eq $true)
+    {
+        foreach($string in $UserArr) {get-appxpackage *$string* | remove-appxpackage}
+    }
+    else 
+    {
+        foreach($string in $UserArr) {write-host "get-appxpackage *$string* | remove-appxpackage"}
+    }
+}
 #This is the line that actually removes all the selected programs.
 #Not every program is removable, some will throw errors. Don't freak out. 
 #To actually remove each program, remove "Write-Host" and the '"' from the body of the method.
 #If you see a progress bar when a line is run, that program was removed. 
+$button3.add_click($button3_click)
+$form.controls.add($button3)
+
+$form.topmost = $true
+$form.showdialog();
