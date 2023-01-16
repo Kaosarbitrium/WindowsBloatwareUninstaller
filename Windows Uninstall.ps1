@@ -1,10 +1,55 @@
 Add-type -assembly System.Windows.Forms
 
+
+<#
+The four lines below, if run, will download and install WinGet (The Windows Package Manager Plugin for Terminal and Powershell) on a sandbox/windows installation.
+To install WinGet, run inside an elevated Microsoft Terminal/PowerShell (Run As Administrator), else you will be prompted to elevate upon running the program.
+
+Invoke-WebRequest -Uri https://github.com/microsoft/winget-cli/releases/download/v1.3.2691/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle -OutFile .\MicrosoftDesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+Invoke-WebRequest -Uri https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile Microsoft.VCLibs.x64.14.00.Desktop.appx
+Add-AppxPackage Microsoft.VCLibs.x64.14.00.Desktop.appx
+Add-AppxPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+
+winget source uninstall msstore
+
+By default, WinGet attempts to use the Microsoft Store as a source, which requires a microsoft account to be logged in and tracked. Personally not a fan, so I just use the winget source list which needs no log-in.
+#>
+
+<# Below are my recommended settings for winget, both for appearences and functionality.
+{
+    "$schema": "https://aka.ms/winget-settings.schema.json",
+
+    // For documentation on these settings, see: https://aka.ms/winget-settings
+    // "source": {
+    //    "autoUpdateIntervalInMinutes": 5
+    // },
+	"visual": {
+        "progressBar": "rainbow"
+    },
+	"installBehavior": {
+        "disableInstallNotes": true
+    },
+	"installBehavior": {
+        "preferences": {
+            "scope": "machine"
+        }
+    },
+	"installBehavior": {
+        "preferences": {
+            "architectures": ["x64"]
+        }
+    },
+	"telemetry": {
+        "disable": true
+    }
+}
+#>
+
+
 $UserArrold = @("microsoft.mixedreality.portal","microsoft.windows.narratorquickstart","microsoft.windows.cloudexperiencehost","microsoft.windows.peopleexperiencehost","microsoft.windowsalarms","microsoft.xbox.tcui","microsoft.xboxapp","microsoft.xboxgamecallableUI","microsoft.xboxgameoverlay","microsoft.xboxgamingoverlay","microsoft.xboxidentityprovider","microsoft.xboxspeechtotextoverlay","microsoft.yourphone","microsoft.zunevideo","microsoft.add.brokerplugin","microsoft.microsoftedge";)
 #Array for the user to fill with every AppXPackage they want to try and remove.
 #The array is pre-populated with some common annoyances I personally just nuke off of windows installations. 
 $UserArr = New-Object -typename 'System.Collections.ArrayList'
-
 
 import-module appx -UseWindowsPowerShell
 #Ensures that the terminal has appxpackage access and will respond consistently. Powershell 7 doesn't have native appxsupport, for some reason, but powershell 2/3/5 and command prompt do.
