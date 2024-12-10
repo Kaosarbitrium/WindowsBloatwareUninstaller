@@ -27,7 +27,7 @@ By default, WinGet attempts to use the Microsoft Store as a source, which requir
         "progressBar": "rainbow"
     },
 	"installBehavior": {
-        "disableInstallNotes": true
+        "disableInstallNotes": false
     },
 	"installBehavior": {
         "preferences": {
@@ -46,7 +46,7 @@ By default, WinGet attempts to use the Microsoft Store as a source, which requir
 #>
 
 
-$UserArrold = @("microsoft.mixedreality.portal","microsoft.windows.narratorquickstart","microsoft.windows.cloudexperiencehost","microsoft.windows.peopleexperiencehost","microsoft.windowsalarms","microsoft.xbox.tcui","microsoft.xboxapp","microsoft.xboxgamecallableUI","microsoft.xboxgameoverlay","microsoft.xboxgamingoverlay","microsoft.xboxidentityprovider","microsoft.xboxspeechtotextoverlay","microsoft.yourphone","microsoft.zunevideo","microsoft.add.brokerplugin","microsoft.microsoftedge";)
+$UserArrold = @("microsoft.mixedreality.portal","microsoft.windows.narratorquickstart","microsoft.windows.cloudexperiencehost","microsoft.windows.peopleexperiencehost","microsoft.windowsalarms","microsoft.yourphone","microsoft.zunevideo","microsoft.add.brokerplugin","microsoft.microsoftedge";)
 #Array for the user to fill with every AppXPackage they want to try and remove.
 #The array is pre-populated with some common annoyances I personally just nuke off of windows installations. 
 $UserArr = New-Object -typename 'System.Collections.ArrayList'
